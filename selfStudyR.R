@@ -303,13 +303,96 @@ vector2 <- c(1, 2, 3, 4, 5, 6)
 result <- array(c(vector1, vector2), dim = c(3, 3, 2))
 print(result)
 
-#ex
+#can name column and row
+vector1 <- c(1, 2, 3)
+vector2 <- c(1, 2, 3, 4, 5, 6)
 
+row.names <- c("row1", "row2", "row3")
+column.names <- c("col1", "col2", "col3")
+matrix.names <- c("matrix1", "matrix2")
 
+result <- array(c(vector1, vector2), dim = c(3, 3, 2), dimnames = list(row.names, column.names, matrix.names))
+print(result)
+#print row3 in the second matrix
+print(result[3,,2])
+#print row1's third element in first matrix
+print(result[1, 3, 1])
+#print 2nd matrix
+print(result[,,2])
 
+#manipulate Array
+vector1 <- c(1, 2, 3)
+vector2 <- c(1, 2, 3, 4, 5, 6)
+array1 <- array(c(vector1, vector2), dim= c(3, 3, 2))
 
+vector3 <- c(4, 5, 6)
+vector4 <- c(4, 5, 6, 7, 8, 9, 10, 11, 12)
+array2 <- array(c(vector3, vector4), dim = c(3, 3, 2))
 
+matrix1 <- array1[,,2] #can't understand what it means
+matrix2 <- array2[,,2]
 
+print(matrix1)
+print(matrix2)
+
+result <- matrix1 + matrix2
+print(result)
+
+#calculation across array elements
+#apply(
+#x - array, 
+#margin - name of the dataset used(what does it actually do?????), 
+#fun - function to apply to all elements)
+vector1 <- c(1, 2, 3)
+vector2 <- c(4, 5, 6, 7, 8, 9)
+
+new.array <- array(c(vector1, vector2), dim = c(3, 3, 2))
+print(new.array)
+#c(row, column)
+result <- apply(new.array, c(1), sum)
+print(result)
+
+#FACTOR
+#Factor shows levels which categorize elements
+#Factor can store integer, string
+
+data <- c("E", "W", "E", "N", "N", "E", "W", "W", "W", "E", "N")
+factorData <- factor(data)
+print(factorData)
+print(is.factor(factorData))
+
+#Factor in data frame
+#R treats text column as category of data and create factors on it
+height <- c(132, 151, 162, 139, 166, 147, 122)
+weight <- c(48, 49, 66, 53, 67, 52, 40)
+gender <- c("male", "male", "female", "female", "male", "female", "male")
+
+#create data frame
+inputData <- data.frame(height, weight, gender)
+print(inputData)
+
+#to test whether gender column is a factor
+print(is.factor(inputData$gender)) #this will return true
+
+#to see level of the gender column
+print(inputData$gender)
+
+#how to change order of level
+data <- c("E", "W", "E", "N", "N", "E", "W", "W", "W", "E", "N")
+factorData <- factor(data)
+print(factorData)
+#why does changing the order of level needed???
+newOrderData <- factor(factorData, levels = c("E", "W", "N"))
+print(newOrderData)
+
+#generate factor level
+#gl(
+#n - integer giving the number of levels, 
+#k - integer giving the number of replications, 
+#labels - vector of labels for the resulting factor levels)
+#generate factor n level, for k times, reference vector in labels
+vector <- gl(2, 4, labels = c("A", "B", "C"))
+print(vector)
 
 
 
