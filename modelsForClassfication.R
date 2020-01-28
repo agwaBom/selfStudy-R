@@ -6,18 +6,22 @@ library(dplyr)
 arrange(iris, iris$Petal.Length)
 
 r = rpart(Species ~ ., data = iris) #왜 결과값이 ppt와 다르지?
-print(r)
+printcp(r) #가장 중요도가 높은 p.l, p.w를 알아서 골라서 판단함 
+#' CP - 복잡도(정해진 질문에 맞게 잘 나눠지면 CP가 낮아짐)
+#' nsplit - 분기
+#' rel error - 오류율
+#' xerror - 교차 검증 오류
+#' xstd - 표준 오차
 
 par(mfrow = c(1, 1), xpd = NA)
 plot(r)
-text(r, use.n = T)
+text(r, use.n = T) #use.n은 빈도수를 출력하게 함
 
 #type = class - 개수로 분류, prob(default) - 각각의 데이터에 대한 확률 출력
 p = predict(r, iris, type = 'class') #만들어놓은 결정트리로 iris데이터를 classification타입으로 추측작업을 함.
 
 #다수의 분류된 species들을 table화함.
-table(p, iris$Species) # 6/150의 오류율
-
+table(p, iris$Species) # 6/150의 오류율 왼쪽이 예측값 , 위에꺼가 GT(정답)
 #parms parameter in rpart
 #For classification splitting, the list can contain any of: the vector of prior probabilities (component prior), the loss matrix (component loss) or the splitting index (component split). 
 #The priors must be positive and sum to 1. The loss matrix must have zeros on the diagonal and positive off-diagonal elements. The splitting index can be gini or information. 
@@ -130,8 +134,7 @@ test = data.frame(Sepal.Length = c(5.11, 7.01, 6.32),
 
 train[, 1:4] #Species를 제거한 값
 #knn(train data, 예측할 new data, GroundTruth, k의 개수)
-k = knn(train[, 1:4], test, train$Species, k = 5)
-
+k = knn(train[, 1:4], test, train$Species, k = 5) #k개의 샘플을 찾아서 메모리에 저장해두어야 하기 떄문에 kNN
 
 library(caret) #knn, rpart등의 기능을 train()에 추가하여 일관성을 도모
 r = train(Species ~ ., data = iris, method = 'rpart') #결정트리
@@ -139,7 +142,7 @@ f = train(Species ~ ., data = iris, method = 'rf') #random forest
 s = train(Species ~ ., data = iris, method = 'svmRadial') #support vector machine분류법(아직 안배움)
 k = train(Species ~ ., data = iris, method = 'knn') #knn
 
-ucla = read.csv('https://stats.idre.ucla.edu/stat/data/binary.csv')
+ucla = read.csv('https://stats.idre.ucla₩₩.edu/stat/data/binary.csv')
 str(ucla)
 ucla$admit = factor(ucla$admit) #ucla데이터 factor로 해서 rpart 와 randomForest가 돌아갈 수 있는 기반을 제공
 #factor을 하지 않을시에는 회귀로 작동.
