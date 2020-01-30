@@ -1,18 +1,59 @@
-library(RCurl)
-library(XML)
+#word2vec은 단어를 벡터로 변환하는 기술이다.
+
+example = 'In the field of computer science, artificial intelligence(AI), sometimes called machine intelligence, is intelligence demonstrated by machines, in contrast to the natural intelligence displayed by humans and other animals.'
+
+doc = Corpus(VectorSource(example))
+inspect(doc)
+
+doc = tm_map(doc, content_transformer(tolower))
+doc = tm_map(doc, removeNumbers)
+doc = tm_map(doc, removeWords, stopwords('english')) #불용어 제거
+doc = tm_map(doc, removePunctuation) #구두점(특수문자) 제거
+doc = tm_map(doc, stripWhitespace) # 단어를 없얘면서 생긴 공백 문자를 제거함
+
+#DWM대신 DTM이라고 하는 이유는 n-그램을 사용하기 때문, 단어의 순서정보를 보완할 수 있다.
+
+#'DTM의 추가 설명
+#'1. 사전 구축
+#'실제로 사전을 구축할때, 크기는 수만~수십만이다.
+#'말뭉치에서 추출하지 말고 국어사전에서 있는 모든 단어를 사전으로 사용할 수 있다.
+#'
+#'2. 문서가 벡터로 표현되므로 거리 측정가능
+#'https://rfriend.tistory.com/319 - cosine Distance 측정 법 
+#'거리가 측정가능하므로 Random Forest, SVM 유사도 측정도 가능해짐 
+#'
+#'3. 문서가 긴 경우 단어의 발생빈도가 높아 벡터를 구성하는 요소의 값이 커지기 때문에 벡터의 크기가 커짐으로 인해서 유사한 문서와 거리가 멀어지는 문제점이 발생
+#' 벡터의 크기를 1로 만드는 정규화를 수행함. 근데 그걸로 어떻게 계산할건지 나는 모르겠음.
+#'
+#'4. DTM은 희소 행렬
+#'한번도 발생하지 않아서 0인 칸이 매우 많다. 
+#'
+#'5. DTM은 단어사이의 상호작용을 표현할 때 제약사항이 있다.
+#'n-gram을 이용해서 해결이 가능하지만 열의 개수가 기하급수적으로 늘어남 why?
+#'https://web.stanford.edu/~jurafsky/slp3/3.pdf
+
+
+library(RCurl) #web server에 접속하기 위한 라이브러리
+
+library(XML) # 웹 문서를 처리하기 위한 라이브러리 Read || Create XML files..
 
 t = readLines('https://en.wikipedia.org/wiki/Data_science') #html파일을 읽어옴
-t
-d = htmlParse(t, asText = T) #web문서를 R데이터 형으로 변환
-d
-clean_doc = xpathSApply(d, "//p", xmlValue) #html 스크립트 코드를 제거
-clean_doc
+str(t) #vector char
+d = htmlParse(t, asText = T) #web문서를 파싱하여 vector로 나누어진 HTML을 Class형으로 합쳐준다(XML library)
+str(d) #Classes type
+clean_doc = xpathSApply(d, "//p", xmlValue) #html 스크립트 코드를 제거 xpathSApply를 하려면 Class형이여야함
+str(clean_doc) #vector char
 
 library(tm) #데이터마이닝 함수 제공 
-library(SnowballC) #어간을 추출하는 함수 제공
+library(SnowballC) #어간을 추출하는 함수 제공 없어도 잘 돌아감 사용하는 함수가 없는데 왜 쓰는거
+search()
 
-doc = Corpus(VectorSource(clean_doc))
-inspect(doc)
+vsDoc = VectorSource(clean_doc)
+vsDoc #attr(, "class")아래에 나오는 건 상속받은 클래스들 
+
+doc = Corpus(VectorSource(clean_doc)) # clean_doc을 vectorSource화하여 문서의 집합(corpus)로 묶어준다
+doc #corpus로 묶었기 때문에 보이지 않는다.
+inspect(doc) #를 사용하여 doc의 내용을 볼 수 있음.
 
 doc = tm_map(doc, content_transformer(tolower)) #tm_map은 지정된 매개변수 값에 따라서 전처리를 수행.
 doc = tm_map(doc, removeNumbers)
@@ -20,11 +61,18 @@ doc = tm_map(doc, removeWords, stopwords('english'))
 doc = tm_map(doc, removePunctuation)
 doc = tm_map(doc, stripWhitespace)
 
-dtm = DocumentTermMatrix(doc)
+dtm = DocumentTermMatrix(doc) #DTM을 구해줌
 dim(dtm) #dim함수는 DTM의 행과 열의 개수를 알려줌
 
+#'Non-/sparse entries: 0이 아닌 개수 / (documents개수 * terms개수 = table의 칸 개수)
+#'Sparsity: 전체 데이터에서 0인 것의 퍼센티지
+#'Maximal term length: term matrix에서 가장 긴 단어의 length
+#'Weighting: 가중치 방식?
 inspect(dtm) #inspect 함수는 상세내용을 요약하여 보여줌
 
+lookAll = as.data.frame(as.matrix(dtm)) #데이터 프레임으로 만들어서 lookAll에 넣으면 전체 matrix를 볼 수 있다. 
+write.csv(lookAll, file = "dtm.csv") #csv 파일로 출력하면 더 간편하게 볼 수 있다.
+##여기까지 
 library(wordcloud)
 
 m = as.matrix(dtm)
